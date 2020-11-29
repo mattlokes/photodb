@@ -1,0 +1,17 @@
+version: "3.3"
+services:
+  photodb:
+    container_name: photodb
+    build: .
+    restart: unless-stopped
+    #network_mode: host
+    ports:
+      - 17120:17120
+    volumes:
+      - /srv/docker/volumes/photodb/data:/app/data
+      - /srv/docker/volumes/photodb/logs:/app/logs
+    environment:
+      PHOTODB_DB_NAME: photo.db
+      PHOTODB_PORT   : 17120
+    #DEBUG ENTRYPOINT OVERRIDE
+    #entrypoint: /bin/sh -c "while true; do echo 'hello'; sleep 10; done"

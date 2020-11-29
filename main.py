@@ -2,10 +2,17 @@ from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 from json import dumps
+import os
+
+if 'PHOTODB_PORT' not in os.environ:
+    raise Exception("Required PHOTODB_PORT environment variable is not set")
+if 'PHOTODB_DB_NAME' not in os.environ:
+    raise Exception("Required PHOTODB_DB_NAME environment variable is not set")
+
 
 import tinyurl
 
-db_connect = create_engine('sqlite:///photo.db')
+db_connect = create_engine('sqlite:///data/{}'.format(os.environ['PHOTODB_DB_NAME']))
 app = Flask(__name__, static_folder='static')
 api = Api(app)
 
@@ -14,18 +21,18 @@ class PhotoDB(Resource):
     def get(self, collection_name, primary):
         conn = db_connect.connect() # connect to database
         query = conn.execute("select * from {0} where photo_primary = {1}".format(collection_name, primary) )
-        #print query.cursor.fetchall()
+        #print(query.cursor.fetchall())
         return {'photos': [ (i[1],i[2],i[3]) for i in query.cursor.fetchall()]}
     
     def post(self,collection_name, primary):
         conn = db_connect.connect()
         
         if collection_name == "create":   #CREATE TABLE
-            print "Creating New Table Entry....{0}".format(primary)
+            print("Creating New Table Entry....{0}".format(primary))
             query = conn.execute("create table {0} ( photo_id integer PRIMARY KEY, photo_name text NOT NULL, photo_link text NOT NULL, photo_tiny_link text NOT NULL, photo_primary bool NOT NULL)".format(primary))
             return
         elif collection_name == "delete": #DELETE TABLE, not for normal use.
-            print "Deleting Table Entry....{0}".format(primary)
+            print("Deleting Table Entry....{0}".format(primary))
             query = conn.execute("drop table {0}".format(primary))
             return
         else:                             #INSERT ENTRY TO TABLE
@@ -69,4 +76,4 @@ def send_css(filename):
     return send_from_directory('static/css', filename)
 
 if __name__ == '__main__':
-     app.run( port=17120 )
+     app.run( port=os.environ['PHOTODB_PORT'] )
