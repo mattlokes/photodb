@@ -19,17 +19,19 @@
     <div class ="main">
       <div class="imglist" style="max-width: 100%;">
 
-      {% for i in grid_image[::-1] %}
-        <a href="{{ i[1] }}" data-fancybox="{{ i[0].split(".")[0] }}" data-primary="{{ i[0].split(".")[0] }}">
+      {% for k,v in images.items()|reverse %}
+        <a href="{{ v['primary']['photo_link'] }}" data-fancybox="{{ k }}" data-primary="{{ k }}">
           <div class="imgsep">
-            <img src="{{ i[1].replace( i[0], "thumb."+i[0]) }}" style="max-width:800px;" />
+            <img src="{{ v['thumb']['photo_link'] }}" style="max-width:800px;" />
           </div>
         </a> 
       {% endfor %}
       
-      {% for i in hidden_image %}
-        <a href="{{ i[1] }}" data-fancybox="{{ i[0].split(".")[0] }}">
+      {% for k,v in images.items() %}
+          {% for s in v['secondary'] %}
+        <a href="{{ s['photo_link'] }}" data-fancybox="{{ k }}">
         </a> 
+          {% endfor %}
       {% endfor %}
    
       </div>
